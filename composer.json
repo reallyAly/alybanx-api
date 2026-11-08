@@ -27,6 +27,6 @@
         "phpunit/phpunit": "^12.5"
     },
     "scripts": {
-        "tests": "vendor/bin/phpunit"
+        "tests": "vendor/bin/phpunit --display-deprecations"
     }
 }

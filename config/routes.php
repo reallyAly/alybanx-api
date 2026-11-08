@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Slim\App;
-use App\Actions\HelloWorldAction;
+use App\Actions\ResetAction;
 
 return function (App $app): void {
-    $app->get('/', HelloWorldAction::class);
+    $app->post('/reset', ResetAction::class);
 };
