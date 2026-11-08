@@ -39,7 +39,7 @@ class GetBalanceAction
             return $response->withStatus(404);
         }
 
-        $account = $this->accountRepository->findById((int)$params["account_id"]);
+        $account = $this->accountRepository->findById($params["account_id"]);
 
         if ($account === null) {
             $response->getBody()->write("0");
