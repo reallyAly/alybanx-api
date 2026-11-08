@@ -15,7 +15,7 @@ $pdo = $container->get(PDO::class);
 
 $pdo->exec('
     CREATE TABLE IF NOT EXISTS accounts (
-        id bigint PRIMARY KEY,
+        id TEXT PRIMARY KEY,
         balance INTEGER NOT NULL DEFAULT 0
     );
 ');
