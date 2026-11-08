@@ -7,6 +7,11 @@
             "App\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "Alysson Victor",
@@ -17,5 +22,11 @@
         "slim/slim": "^4.15",
         "slim/psr7": "^1.8",
         "php-di/php-di": "^7.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^12.5"
+    },
+    "scripts": {
+        "tests": "vendor/bin/phpunit"
     }
 }
