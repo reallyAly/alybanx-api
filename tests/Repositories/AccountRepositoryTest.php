@@ -43,4 +43,32 @@ class AccountRepositoryTest extends TestCase
         $count = (int) $this->pdo->query('SELECT COUNT(*) FROM accounts')->fetchColumn();
         $this->assertSame(0, $count);
     }
+
+    /**
+     * @test
+     */
+    public function testFindByIdWhenAccountExists(): void
+    {
+        $accountIdMock = 1;
+        $accountBalance = 10;
+
+        $stmt = $this->pdo->prepare('INSERT INTO accounts (id, balance) VALUES (:id, :balance)');
+        $stmt->execute(['id' => 1, 'balance' => 10]);
+
+        $account = $this->repository->findById($accountIdMock);
+
+        $this->assertSame($accountBalance, $account->getBalance());
+    }
+
+    /**
+     * @test
+     */
+    public function testFindByIdWhenAccountNotExists(): void
+    {
+        $accountIdMock = 2;
+
+        $account = $this->repository->findById($accountIdMock);
+
+        $this->assertNull($account);
+    }
 }
