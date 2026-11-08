@@ -1,6 +1,8 @@
 services:
   app:
-    image: php:8.3-cli-alpine
+    build:
+      context: .docker/php
+      dockerfile: Dockerfile
     container_name: alybanx_app
     working_dir: /var/www
     env_file:
