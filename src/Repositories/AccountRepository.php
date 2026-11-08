@@ -30,10 +30,10 @@ class AccountRepository
     /**
      * Get account data by id
      *
-     * @param int $accountId
+     * @param string $accountId
      * @return Account|null
      */
-    public function findById(int $accountId): ?Account
+    public function findById(string $accountId): ?Account
     {
         $stmt = $this->pdo->prepare("SELECT * FROM accounts WHERE id = :id");
         $stmt->bindParam(":".Account::ID_KEY, $accountId);

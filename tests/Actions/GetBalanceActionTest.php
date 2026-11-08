@@ -54,7 +54,7 @@ class GetBalanceActionTest extends TestCase
         $this->repository
             ->expects($this->once())
             ->method('findById')
-            ->with(1234)
+            ->with("1234")
             ->willReturn(null);
 
         $result = ($this->action)($request, $response, []);
@@ -74,12 +74,12 @@ class GetBalanceActionTest extends TestCase
 
         $response = (new ResponseFactory())->createResponse();
 
-        $account = new Account(1234, 20);
+        $account = new Account("1234", 20);
 
         $this->repository
             ->expects($this->once())
             ->method('findById')
-            ->with(1234)
+            ->with("1234")
             ->willReturn($account);
 
         $result = ($this->action)($request, $response, []);

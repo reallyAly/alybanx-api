@@ -35,8 +35,8 @@ class AccountRepositoryTest extends TestCase
     public function testReset(): void
     {
         $stmt = $this->pdo->prepare('INSERT INTO accounts (id, balance) VALUES (:id, :balance)');
-        $stmt->execute(['id' => 100, 'balance' => 20]);
-        $stmt->execute(['id' => 200, 'balance' => 50]);
+        $stmt->execute(['id' => "100", 'balance' => 20]);
+        $stmt->execute(['id' => "200", 'balance' => 50]);
 
         $this->repository->reset();
 
@@ -49,11 +49,11 @@ class AccountRepositoryTest extends TestCase
      */
     public function testFindByIdWhenAccountExists(): void
     {
-        $accountIdMock = 1;
+        $accountIdMock = "1";
         $accountBalance = 10;
 
         $stmt = $this->pdo->prepare('INSERT INTO accounts (id, balance) VALUES (:id, :balance)');
-        $stmt->execute(['id' => 1, 'balance' => 10]);
+        $stmt->execute(['id' => "1", 'balance' => 10]);
 
         $account = $this->repository->findById($accountIdMock);
 
@@ -65,7 +65,7 @@ class AccountRepositoryTest extends TestCase
      */
     public function testFindByIdWhenAccountNotExists(): void
     {
-        $accountIdMock = 2;
+        $accountIdMock = "2";
 
         $account = $this->repository->findById($accountIdMock);
 
