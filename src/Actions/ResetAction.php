@@ -31,6 +31,7 @@ class ResetAction
         array $args
     ): ResponseInterface {
         $this->accountRepository->reset();
+        $response->getBody()->write("OK");
         return $response->withStatus(200);
     }
 }
