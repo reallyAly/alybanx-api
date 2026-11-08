@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use \PDO;
+use App\Models\Account;
 
 class AccountRepository
 {
@@ -12,7 +13,7 @@ class AccountRepository
      * @param PDO $pdo
      */
     public function __construct(
-        private PDO $pdo
+        private readonly PDO $pdo
     ) {
     }
 
@@ -24,5 +25,22 @@ class AccountRepository
     public function reset(): void
     {
         $this->pdo->exec("DELETE FROM accounts");
+    }
+
+    /**
+     * Get account data by id
+     *
+     * @param int $accountId
+     * @return Account|null
+     */
+    public function findById(int $accountId): ?Account
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM accounts WHERE id = :id");
+        $stmt->bindParam(":".Account::ID_KEY, $accountId);
+
+        $stmt->execute();
+        $data = $stmt->fetch();
+
+        return empty($data) ? null: Account::create($data);
     }
 }
