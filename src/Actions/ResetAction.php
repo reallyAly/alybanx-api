@@ -2,11 +2,22 @@
 
 namespace App\Actions;
 
+use App\Repositories\AccountRepository;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class HelloWorldAction
+class ResetAction
 {
+    /**
+     * ResetAction constructor
+     *
+     * @param AccountRepository $accountRepository
+     */
+    public function __construct(
+        private readonly AccountRepository $accountRepository
+    ) {
+    }
+
     /**
      * @param RequestInterface $request
      * @param ResponseInterface $response
@@ -19,7 +30,7 @@ class HelloWorldAction
         ResponseInterface $response,
         array $args
     ): ResponseInterface {
-        $response->getBody()->write(json_encode(["message" => "Hello World"]));
+        $this->accountRepository->reset();
         return $response->withStatus(200);
     }
 }
