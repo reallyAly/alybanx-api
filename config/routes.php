@@ -6,5 +6,5 @@ use Slim\App;
 use App\Actions\ResetAction;
 
 return function (App $app): void {
-    $app->post('/V1/reset', ResetAction::class);
+    $app->post('/reset', ResetAction::class);
 };
