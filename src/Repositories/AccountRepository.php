@@ -161,4 +161,55 @@ class AccountRepository
             throw $e;
         }
     }
+
+    /**
+     * Transfer amount between accounts
+     *
+     * @param string $originId
+     * @param string $destinationId
+     * @param int $amount
+     *
+     * @return Account[]|null
+     * @throws Throwable
+     */
+    public function transfer(
+        string $originId,
+        string $destinationId,
+        int $amount
+    ): ?array {
+        $this->pdo->beginTransaction();
+
+        try {
+            $origin = $this->findById($originId);
+            $destination = $this->findById($destinationId);
+
+            if ($origin === null || $destination === null) {
+                $this->pdo->rollBack();
+                return null;
+            }
+
+            if ($origin->getBalance() < $amount) {
+                $this->pdo->rollBack();
+                throw new \DomainException('Insufficient funds.');
+            }
+
+            $origin->setBalance($origin->getBalance() - $amount);
+            $originUpdated = $this->update($origin);
+
+            $destination->setBalance($destination->getBalance() + $amount);
+            $destinationUpdated = $this->update($destination);
+
+            $this->pdo->commit();
+
+            return [
+                "destination" => $destinationUpdated,
+                "origin" => $originUpdated
+            ];
+        } catch (Throwable $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
 }

@@ -7,6 +7,7 @@ use App\Actions\Events\HandlerChain;
 use Psr\Container\ContainerInterface;
 use App\Actions\Events\DepositActionHandler;
 use App\Actions\Events\WithdrawActionHandler;
+use App\Actions\Events\TransferActionHandler;
 
 return function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
@@ -32,7 +33,8 @@ return function (ContainerBuilder $containerBuilder): void {
             return new HandlerChain(
                 [
                     'deposit' => $c->get(DepositActionHandler::class),
-                    'withdraw' => $c->get(WithdrawActionHandler::class)
+                    'withdraw' => $c->get(WithdrawActionHandler::class),
+                    'transfer' => $c->get(TransferActionHandler::class)
                 ]
             );
         },
