@@ -215,13 +215,10 @@ class AccountRepositoryTest extends TestCase
 
     public function testWithdrawSuccessfullyDecrementsBalanceAndCommits(): void
     {
-        // 1. Arrange: Conta existente com saldo 100
         $this->repository->save(new Account('100', 100));
 
-        // 2. Act: Saque de 40
         $updatedAccount = $this->repository->withdraw('100', 40);
 
-        // 3. Assert: Retorno e persistência no banco
         $this->assertInstanceOf(Account::class, $updatedAccount);
         $this->assertSame('100', $updatedAccount->getId());
         $this->assertSame(60, $updatedAccount->getBalance());
@@ -234,10 +231,8 @@ class AccountRepositoryTest extends TestCase
 
     public function testWithdrawReturnsNullWhenAccountDoesNotExist(): void
     {
-        // Act: Tentativa de saque em conta não cadastrada
         $result = $this->repository->withdraw('999', 50);
 
-        // Assert: Retorna null e fecha a transação
         $this->assertNull($result);
         $this->assertFalse($this->pdo->inTransaction());
     }
@@ -276,6 +271,116 @@ class AccountRepositoryTest extends TestCase
 
         try {
             $this->repository->withdraw('100', 10);
+        } finally {
+            $this->assertFalse($this->pdo->inTransaction());
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function testTransferSuccessfullyDebitsOriginCreditsDestinationAndCommits(): void
+    {
+        $this->repository->save(new Account('100', 100));
+        $this->repository->save(new Account('300', 0));
+
+        $result = $this->repository->transfer('100', '300', 40);
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('origin', $result);
+        $this->assertArrayHasKey('destination', $result);
+
+        $this->assertSame('100', $result['origin']->getId());
+        $this->assertSame(60, $result['origin']->getBalance());
+
+        $this->assertSame('300', $result['destination']->getId());
+        $this->assertSame(40, $result['destination']->getBalance());
+
+        $persistedOrigin = $this->repository->findById('100');
+        $persistedDestination = $this->repository->findById('300');
+
+        $this->assertNotNull($persistedOrigin);
+        $this->assertNotNull($persistedDestination);
+        $this->assertSame(60, $persistedOrigin->getBalance());
+        $this->assertSame(40, $persistedDestination->getBalance());
+
+        $this->assertFalse($this->pdo->inTransaction());
+    }
+
+    /**
+     * @test
+     */
+    public function testTransferReturnsNullAndRollsBackWhenOriginDoesNotExist(): void
+    {
+        $this->repository->save(new Account('300', 50));
+
+        $result = $this->repository->transfer('non-existent', '300', 20);
+
+        $this->assertNull($result);
+        $this->assertFalse($this->pdo->inTransaction());
+
+        $persistedDestination = $this->repository->findById('300');
+        $this->assertNotNull($persistedDestination);
+        $this->assertSame(50, $persistedDestination->getBalance());
+    }
+
+    /**
+     * @test
+     */
+    public function testTransferReturnsNullAndRollsBackWhenDestinationDoesNotExist(): void
+    {
+        $this->repository->save(new Account('100', 100));
+
+        $result = $this->repository->transfer('100', 'non-existent', 20);
+
+        $this->assertNull($result);
+        $this->assertFalse($this->pdo->inTransaction());
+
+        $persistedOrigin = $this->repository->findById('100');
+        $this->assertNotNull($persistedOrigin);
+        $this->assertSame(100, $persistedOrigin->getBalance());
+    }
+
+    /**
+     * @test
+     */
+    public function testTransferThrowsDomainExceptionAndRollsBackWhenInsufficientFunds(): void
+    {
+        $this->repository->save(new Account('100', 15));
+        $this->repository->save(new Account('300', 10));
+
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('Insufficient funds.');
+
+        try {
+            $this->repository->transfer('100', '300', 20);
+        } finally {
+            $this->assertFalse($this->pdo->inTransaction());
+
+            $persistedOrigin = $this->repository->findById('100');
+            $persistedDestination = $this->repository->findById('300');
+
+            $this->assertNotNull($persistedOrigin);
+            $this->assertNotNull($persistedDestination);
+            $this->assertSame(15, $persistedOrigin->getBalance());
+            $this->assertSame(10, $persistedDestination->getBalance());
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function testTransferRollsBackOnDatabaseErrorDuringOperation(): void
+    {
+        $this->repository->save(new Account('100', 100));
+        $this->repository->save(new Account('300', 50));
+
+        $this->pdo->exec("DROP TABLE accounts;");
+
+        $this->expectException(\PDOException::class);
+
+        try {
+            $this->repository->transfer('100', '300', 30);
         } finally {
             $this->assertFalse($this->pdo->inTransaction());
         }

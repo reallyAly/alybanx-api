@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
-class Account
+use \JsonSerializable;
+
+class Account implements JsonSerializable
 {
     /** @var string */
     public const ID_KEY = "id";
@@ -68,5 +70,16 @@ class Account
     public function getBalance(): int
     {
         return $this->balance;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function jsonSerialize(): mixed
+    {
+        return [
+            self::ID_KEY => $this->id,
+            self::BALANCE_KEY => $this->balance
+        ];
     }
 }
