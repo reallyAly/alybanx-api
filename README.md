@@ -1,4 +1,4 @@
-# Alybanx Events API
+# Alybanx API
 
 A lightweight, clean, and test-driven RESTful API built with **PHP 8.3**, **Slim Framework 4**, and native **SQLite PDO**. This application handles core account events (deposits, withdrawals, transfers, balance inquiries, and system state resets) with strict transaction isolation and comprehensive unit test coverage.
 
