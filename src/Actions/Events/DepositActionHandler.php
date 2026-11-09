@@ -28,10 +28,7 @@ class DepositActionHandler implements EventHandlerInterface
     ): ResponseInterface {
         $payload = $request->getParsedBody();
 
-        $destinationId = (string) ($payload['destination'] ?? '');
-        $amount = (int) ($payload['amount'] ?? 0);
-
-        if (strlen($destinationId) === 0 || $amount <= 0) {
+        if (!$this->isValidPayload($payload)) {
             $response->getBody()->write(
                 json_encode(["message" => "Payload is invalid, please check and try again"])
             );
@@ -39,7 +36,10 @@ class DepositActionHandler implements EventHandlerInterface
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
-        $account = $this->accountRepository->deposit($destinationId, $amount);
+        $account = $this->accountRepository->deposit(
+            $payload["destination"],
+            $payload["amount"]
+        );
 
         $response->getBody()->write(
             json_encode([
@@ -48,5 +48,19 @@ class DepositActionHandler implements EventHandlerInterface
         );
 
         return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+    }
+
+    /**
+     * Validate payload
+     *
+     * @param array $payload
+     * @return bool
+     */
+    protected function isValidPayload(array $payload): bool
+    {
+        $destination = trim((string) ($payload['destination'] ?? ''));
+        $amount = (int) ($payload['amount'] ?? 0);
+
+        return $destination !== '' && $amount > 0;
     }
 }
