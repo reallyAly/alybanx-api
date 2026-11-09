@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use \PDO;
 use App\Models\Account;
+use Throwable;
 
 class AccountRepository
 {
@@ -89,6 +90,7 @@ class AccountRepository
      * @param int $amount
      *
      * @return Account|null
+     * @throws Throwable
      */
     public function deposit(string $destinationId, int $amount): ?Account
     {
@@ -112,7 +114,47 @@ class AccountRepository
             $this->pdo->commit();
 
             return $account;
-        } catch (\PDOException $e) {
+        } catch (Throwable $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Withdraw from a specific account
+     *
+     * @param string $originId
+     * @param int $amount
+     *
+     * @return Account|null
+     * @throws Throwable
+     */
+    public function withdraw(string $originId, int $amount): ?Account
+    {
+        $this->pdo->beginTransaction();
+
+        try {
+            $account = $this->findById($originId);
+
+            if ($account === null) {
+                $this->pdo->rollBack();
+                return null;
+            }
+
+            if ($amount > $account->getBalance()) {
+                $this->pdo->rollBack();
+                throw new \DomainException('Insufficient funds.');
+            }
+
+            $account->setBalance($account->getBalance() - $amount);
+            $updatedAccount = $this->update($account);
+
+            $this->pdo->commit();
+
+            return $updatedAccount;
+        } catch (Throwable $e) {
             if ($this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
