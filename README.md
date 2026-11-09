@@ -21,7 +21,7 @@ Before running the project, ensure you have installed:
 - Docker Compose v2.0+ (recommended: `docker compose`)
 
 **Note:** If your local environment is still using the legacy Compose (v1),
-replace `docker compose` with `docker-compose`
+replace `docker compose` with `docker-compose` on bin/setup.sh script
 
 ---
 
