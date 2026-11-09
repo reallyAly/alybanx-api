@@ -2,6 +2,7 @@
 
 namespace Tests\Actions\Events;
 
+use DomainException;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use App\Actions\Events\HandlerChain;
@@ -37,7 +38,7 @@ class HandlerChainTest extends TestCase
 
     /**
      * @test
-     * @throws Exception
+     * @throws DomainException
      */
     public function testGetHandlerReturnsHandlerWhenKeyExists(): void
     {
@@ -51,8 +52,8 @@ class HandlerChainTest extends TestCase
      */
     public function testGetHandlerThrowsExceptionWhenKeyDoesNotExist(): void
     {
-        $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Operation is not valid');
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage('Operation type is not valid');
 
         $this->action->getHandler('invalid_operation');
     }

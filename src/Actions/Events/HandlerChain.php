@@ -2,6 +2,7 @@
 
 namespace App\Actions\Events;
 
+use DomainException;
 use Exception;
 
 class HandlerChain
@@ -21,12 +22,12 @@ class HandlerChain
      * @param string $handlerKey
      * @return EventHandlerInterface
      *
-     * @throws Exception
+     * @throws DomainException
      */
     public function getHandler(string $handlerKey): EventHandlerInterface
     {
         if (!isset($this->handlers[$handlerKey])) {
-            throw new Exception("Operation is not valid");
+            throw new DomainException("Operation type is not valid");
         }
 
         return $this->handlers[$handlerKey];
