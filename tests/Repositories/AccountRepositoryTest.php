@@ -331,14 +331,27 @@ class AccountRepositoryTest extends TestCase
     {
         $this->repository->save(new Account('100', 100));
 
-        $result = $this->repository->transfer('100', 'non-existent', 20);
+        $result = $this->repository->transfer('100', '200', 40);
 
-        $this->assertNull($result);
-        $this->assertFalse($this->pdo->inTransaction());
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('origin', $result);
+        $this->assertArrayHasKey('destination', $result);
+
+        $this->assertSame('100', $result['origin']->getId());
+        $this->assertSame(60, $result['origin']->getBalance());
+
+        $this->assertSame('200', $result['destination']->getId());
+        $this->assertSame(40, $result['destination']->getBalance());
 
         $persistedOrigin = $this->repository->findById('100');
+        $persistedDestination = $this->repository->findById('200');
+
         $this->assertNotNull($persistedOrigin);
-        $this->assertSame(100, $persistedOrigin->getBalance());
+        $this->assertNotNull($persistedDestination);
+        $this->assertSame(60, $persistedOrigin->getBalance());
+        $this->assertSame(40, $persistedDestination->getBalance());
+
+        $this->assertFalse($this->pdo->inTransaction());
     }
 
     /**
