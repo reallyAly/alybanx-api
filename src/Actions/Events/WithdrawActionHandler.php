@@ -72,8 +72,8 @@ class WithdrawActionHandler implements EventHandlerInterface
     protected function isValidPayload(array $payload): bool
     {
         $origin = trim((string) ($payload['origin'] ?? ''));
-        $amount = (int) ($payload['amount'] ?? 0);
+        $amount = $payload['amount'] ?? 0;
 
-        return $origin !== '' && $amount > 0;
+        return $origin !== '' && $amount > 0 && is_integer($amount);
     }
 }

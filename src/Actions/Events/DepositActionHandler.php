@@ -59,8 +59,8 @@ class DepositActionHandler implements EventHandlerInterface
     protected function isValidPayload(array $payload): bool
     {
         $destination = trim((string) ($payload['destination'] ?? ''));
-        $amount = (int) ($payload['amount'] ?? 0);
+        $amount = ($payload['amount'] ?? 0);
 
-        return $destination !== '' && $amount > 0;
+        return $destination !== '' && $amount > 0 && is_integer($amount);
     }
 }

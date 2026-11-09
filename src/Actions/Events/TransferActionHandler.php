@@ -76,8 +76,8 @@ class TransferActionHandler implements EventHandlerInterface
     {
         $origin = trim((string) ($payload['origin'] ?? ''));
         $destination = trim((string) ($payload['destination'] ?? ''));
-        $amount = (int) ($payload['amount'] ?? 0);
+        $amount = $payload['amount'] ?? 0;
 
-        return $origin !== '' && $destination !== '' && $origin !== $destination && $amount > 0;
+        return $origin !== '' && $destination !== '' && $origin !== $destination && $amount > 0 && is_integer($amount);
     }
 }
