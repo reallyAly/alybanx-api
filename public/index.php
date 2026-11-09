@@ -15,8 +15,10 @@ $container = $containerBuilder->build();
 AppFactory::setContainer($container);
 $app = AppFactory::create();
 
-$app->addErrorMiddleware(displayErrorDetails: true, logErrors: false, logErrorDetails: false);
+$displayErrors = ($_ENV['APP_ENV'] ?? getenv('APP_ENV') ?? 'production') === 'development';
+
 $app->addBodyParsingMiddleware();
+$app->addErrorMiddleware(displayErrorDetails: $displayErrors, logErrors: true, logErrorDetails: true);
 
 (require __DIR__ . '/../config/routes.php')($app);
 
