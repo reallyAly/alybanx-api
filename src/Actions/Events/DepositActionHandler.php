@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Actions\Events;
 
 use App\Repositories\AccountRepository;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use App\Models\Account;
 
 class DepositActionHandler implements EventHandlerInterface
 {
