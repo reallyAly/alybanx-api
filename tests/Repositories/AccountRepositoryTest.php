@@ -212,4 +212,72 @@ class AccountRepositoryTest extends TestCase
             $this->assertFalse($this->pdo->inTransaction());
         }
     }
+
+    public function testWithdrawSuccessfullyDecrementsBalanceAndCommits(): void
+    {
+        // 1. Arrange: Conta existente com saldo 100
+        $this->repository->save(new Account('100', 100));
+
+        // 2. Act: Saque de 40
+        $updatedAccount = $this->repository->withdraw('100', 40);
+
+        // 3. Assert: Retorno e persistência no banco
+        $this->assertInstanceOf(Account::class, $updatedAccount);
+        $this->assertSame('100', $updatedAccount->getId());
+        $this->assertSame(60, $updatedAccount->getBalance());
+
+        $persistedAccount = $this->repository->findById('100');
+        $this->assertNotNull($persistedAccount);
+        $this->assertSame(60, $persistedAccount->getBalance());
+        $this->assertFalse($this->pdo->inTransaction());
+    }
+
+    public function testWithdrawReturnsNullWhenAccountDoesNotExist(): void
+    {
+        // Act: Tentativa de saque em conta não cadastrada
+        $result = $this->repository->withdraw('999', 50);
+
+        // Assert: Retorna null e fecha a transação
+        $this->assertNull($result);
+        $this->assertFalse($this->pdo->inTransaction());
+    }
+
+    /**
+     * @test
+     */
+    public function testWithdrawThrowsDomainExceptionAndRollsBackWhenInsufficientFunds(): void
+    {
+        $this->repository->save(new Account('100', 20));
+
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage('Insufficient funds.');
+
+        try {
+            $this->repository->withdraw('100', 50);
+        } finally {
+            $this->assertFalse($this->pdo->inTransaction());
+
+            $account = $this->repository->findById('100');
+            $this->assertNotNull($account);
+            $this->assertSame(20, $account->getBalance());
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function testWithdrawRollsBackOnUnexpectedDatabaseError(): void
+    {
+        $this->repository->save(new Account('100', 100));
+
+        $this->pdo->exec("DROP TABLE accounts;");
+
+        $this->expectException(\PDOException::class);
+
+        try {
+            $this->repository->withdraw('100', 10);
+        } finally {
+            $this->assertFalse($this->pdo->inTransaction());
+        }
+    }
 }

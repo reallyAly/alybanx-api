@@ -3,6 +3,7 @@
 namespace App\Actions;
 
 use App\Actions\Events\HandlerChain;
+use DomainException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -38,7 +39,15 @@ class EventAction
 
         $handlerKey = $payload["type"] ?? self::EMPTY_KEY;
 
-        $handler = $this->handlerChain->getHandler($handlerKey);
+        try {
+            $handler = $this->handlerChain->getHandler($handlerKey);
+        } catch (DomainException $e) {
+            $response->getBody()->write(
+                json_encode(["message" => $e->getMessage()])
+            );
+
+            return $response->withStatus(400);
+        }
 
         return $handler->handle($request, $response);
     }
