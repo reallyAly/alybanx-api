@@ -26,10 +26,7 @@ class WithdrawActionHandler implements EventHandlerInterface
     {
         $payload = $request->getParsedBody();
 
-        $destinationId = (string) ($payload['origin'] ?? '');
-        $amount = (int) ($payload['amount'] ?? 0);
-
-        if (strlen($destinationId) === 0 || $destinationId === " " || $amount <= 0) {
+        if (!$this->isValidPayload($payload)) {
             $response->getBody()->write(
                 json_encode(["message" => "Payload is invalid, please check and try again"])
             );
@@ -38,7 +35,10 @@ class WithdrawActionHandler implements EventHandlerInterface
         }
 
         try {
-            $account = $this->accountRepository->withdraw($destinationId, $amount);
+            $account = $this->accountRepository->withdraw(
+                $payload["origin"],
+                $payload["amount"]
+            );
         } catch (\DomainException) {
             $response->getBody()->write(
                 json_encode(["message" => "Insufficient funds on origin account"])
@@ -61,5 +61,19 @@ class WithdrawActionHandler implements EventHandlerInterface
         );
 
         return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+    }
+
+    /**
+     * Validate payload
+     *
+     * @param array $payload
+     * @return bool
+     */
+    protected function isValidPayload(array $payload): bool
+    {
+        $origin = trim((string) ($payload['origin'] ?? ''));
+        $amount = (int) ($payload['amount'] ?? 0);
+
+        return $origin !== '' && $amount > 0;
     }
 }
