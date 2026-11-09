@@ -43,4 +43,80 @@ class AccountRepository
 
         return empty($data) ? null: Account::create($data);
     }
+
+    /**
+     * Save method
+     *
+     * @param Account $account
+     * @return Account|null
+     */
+    public function save(Account $account): ?Account
+    {
+        $accountId = $account->getId();
+        $balance   = $account->getBalance();
+
+        $stmt = $this->pdo->prepare("INSERT INTO accounts (id, balance) VALUES (:id, :balance)");
+        $stmt->bindParam(":".Account::ID_KEY, $accountId);
+        $stmt->bindParam(":".Account::BALANCE_KEY, $balance);
+
+        $stmt->execute();
+        return $this->findById($accountId);
+    }
+
+    /**
+     * Update method
+     *
+     * @param Account $account
+     * @return Account|null
+     */
+    public function update(Account $account): ?Account
+    {
+        $accountId = $account->getId();
+        $balance   = $account->getBalance();
+
+        $stmt = $this->pdo->prepare("UPDATE accounts SET balance = :balance WHERE id = :id");
+        $stmt->bindParam(":".Account::ID_KEY, $accountId);
+        $stmt->bindParam(":".Account::BALANCE_KEY, $balance);
+
+        $stmt->execute();
+        return $this->findById($accountId);
+    }
+
+    /**
+     * Deposit amount
+     *
+     * @param string $destinationId
+     * @param int $amount
+     *
+     * @return Account|null
+     */
+    public function deposit(string $destinationId, int $amount): ?Account
+    {
+        $this->pdo->beginTransaction();
+
+        try {
+            $account = $this->findById($destinationId);
+
+            if ($account === null) {
+                $account = Account::create([
+                    Account::ID_KEY => $destinationId,
+                    Account::BALANCE_KEY => $amount
+                ]);
+
+                $account = $this->save($account);
+            } else {
+                $account->setBalance($amount+$account->getBalance());
+                $account = $this->update($account);
+            }
+
+            $this->pdo->commit();
+
+            return $account;
+        } catch (\PDOException $e) {
+            if ($this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
 }
