@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use DI\ContainerBuilder;
 use Psr\Container\ContainerInterface;
+use App\Actions\Events\DepositActionHandler;
+use App\Actions\Events\HandlerChain;
 
 return function (ContainerBuilder $containerBuilder): void {
     $containerBuilder->addDefinitions([
@@ -24,6 +26,13 @@ return function (ContainerBuilder $containerBuilder): void {
             $pdo->exec('PRAGMA foreign_keys = ON;');
 
             return $pdo;
+        },
+        HandlerChain::class => function (ContainerInterface $c): HandlerChain {
+            return new HandlerChain(
+                [
+                    'deposit' => $c->get(DepositActionHandler::class)
+                ]
+            );
         },
     ]);
 };

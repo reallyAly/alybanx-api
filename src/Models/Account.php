@@ -11,11 +11,11 @@ class Account
     public const BALANCE_KEY = "balance";
 
     /**
-     * @param int $id
+     * @param string $id
      * @param int $balance
      */
     public function __construct(
-        private int $id,
+        private string $id,
         private int $balance = 0
     ) {
     }
@@ -35,19 +35,19 @@ class Account
     }
 
     /**
-     * @param int $id
+     * @param string $id
      * @return Account
      */
-    public function setId(int $id): Account
+    public function setId(string $id): Account
     {
         $this->id = $id;
         return $this;
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getId(): int
+    public function getId(): string
     {
         return $this->id;
     }
