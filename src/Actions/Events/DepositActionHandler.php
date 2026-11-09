@@ -43,10 +43,7 @@ class DepositActionHandler implements EventHandlerInterface
 
         $response->getBody()->write(
             json_encode([
-                "destination" => [
-                    Account::ID_KEY => $account->getId(),
-                    Account::BALANCE_KEY => $account->getBalance()
-                ]
+                "destination" => $account
              ])
         );
 

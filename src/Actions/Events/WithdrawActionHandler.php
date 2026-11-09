@@ -56,10 +56,7 @@ class WithdrawActionHandler implements EventHandlerInterface
 
         $response->getBody()->write(
             json_encode([
-                "origin" => [
-                    Account::ID_KEY => $account->getId(),
-                    Account::BALANCE_KEY => $account->getBalance()
-                ]
+                "origin" => $account
             ])
         );
 
