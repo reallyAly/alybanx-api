@@ -15,12 +15,13 @@ A lightweight, clean, and test-driven RESTful API built with **PHP 8.3**, **Slim
 
 ---
 
-## 📋 Prerequisites
-
+### Pre-requisites
 Before running the project, ensure you have installed:
+- Docker Engine 24.0+
+- Docker Compose v2.0+ (recommended: `docker compose`)
 
-- [Docker Engine](https://docs.docker.com/engine/install/) (v24.0 or higher)
-- [Docker Compose](https://docs.docker.com/compose/install/) (v2.0 or higher)
+**Note:** If your local environment is still using the legacy Compose (v1),
+replace `docker compose` with `docker-compose` on bin/setup.sh script
 
 ---
 
