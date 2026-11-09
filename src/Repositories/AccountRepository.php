@@ -181,9 +181,8 @@ class AccountRepository
 
         try {
             $origin = $this->findById($originId);
-            $destination = $this->findById($destinationId);
 
-            if ($origin === null || $destination === null) {
+            if ($origin === null) {
                 $this->pdo->rollBack();
                 return null;
             }
@@ -191,6 +190,12 @@ class AccountRepository
             if ($origin->getBalance() < $amount) {
                 $this->pdo->rollBack();
                 throw new \DomainException('Insufficient funds.');
+            }
+
+            $destination = $this->findById($destinationId);
+            if ($destination === null) {
+                $destination = new Account($destinationId, 0);
+                $this->save($destination);
             }
 
             $origin->setBalance($origin->getBalance() - $amount);
