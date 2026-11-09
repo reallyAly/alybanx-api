@@ -29,7 +29,7 @@ Before running the project, ensure you have installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/reallyAly/alybanx-take-home-assignment.git alybanx-api
+git clone https://github.com/reallyAly/alybanx-api.git alybanx-api
 cd alybanx-api
 ```
 
